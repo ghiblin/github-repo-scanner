@@ -1,5 +1,3 @@
-mod error;
-
 use std::{path::PathBuf, process, sync::Arc};
 
 use clap::Parser;
@@ -30,7 +28,11 @@ struct Args {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    let exit_code = run(args).await?;
+    process::exit(exit_code);
+}
 
+async fn run(args: Args) -> anyhow::Result<i32> {
     let (owner, name) = parse_github_url(&args.github_url)?;
 
     let rules_path = args.rules.unwrap_or_else(|| {
@@ -38,37 +40,45 @@ async fn main() -> anyhow::Result<()> {
     });
     let ruleset = Arc::new(load(&rules_path)?);
 
+    let snapshot = fetch_snapshot(&args.github_url, &owner, &name, args.clone).await?;
+
+    let findings = NodeJsAnalyzer.analyze(&snapshot, &ruleset);
+    let verdict = Verdict::from_findings(&findings);
+
+    print!("{}", render(&findings, &verdict, true));
+
+    Ok(match verdict {
+        Verdict::Safe => 0,
+        Verdict::Suspicious => 1,
+        Verdict::Dangerous => 2,
+    })
+}
+
+async fn fetch_snapshot(
+    url: &str,
+    owner: &str,
+    name: &str,
+    clone: bool,
+) -> anyhow::Result<scanner_repository::RepoSnapshot> {
     let pb = ProgressBar::new_spinner();
     pb.set_style(
         ProgressStyle::default_spinner()
             .template("{spinner} {msg}")
             .unwrap(),
     );
-    pb.set_message(format!("Fetching {owner}/{name}..."));
     pb.enable_steady_tick(std::time::Duration::from_millis(80));
 
-    let snapshot = if args.clone {
+    let snapshot = if clone {
         pb.set_message(format!("Cloning {owner}/{name}..."));
-        LocalCloneClient::new().fetch_url(&args.github_url)?
+        LocalCloneClient::new().fetch_url(url)?
     } else {
+        pb.set_message(format!("Fetching {owner}/{name}..."));
         GithubApiClient::new("https://api.github.com")
-            .fetch(&owner, &name)
+            .fetch(owner, name)
             .await?
     };
     pb.finish_and_clear();
-
-    let findings = NodeJsAnalyzer.analyze(&snapshot, &ruleset);
-    let verdict = Verdict::from_findings(&findings);
-
-    let output = render(&findings, &verdict, true);
-    print!("{output}");
-
-    let exit_code = match verdict {
-        Verdict::Safe => 0,
-        Verdict::Suspicious => 1,
-        Verdict::Dangerous => 2,
-    };
-    process::exit(exit_code);
+    Ok(snapshot)
 }
 
 fn parse_github_url(url: &str) -> anyhow::Result<(String, String)> {
