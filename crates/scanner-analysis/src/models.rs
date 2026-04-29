@@ -21,6 +21,7 @@ pub enum Verdict {
 }
 
 impl Verdict {
+    #[must_use]
     pub fn from_findings(findings: &[Finding]) -> Self {
         if findings.is_empty() {
             return Self::Safe;
