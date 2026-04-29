@@ -21,7 +21,7 @@ pub enum Verdict {
 }
 
 impl Verdict {
-    #[must_use]
+    #[must_use = "the computed verdict should be used to determine scan outcome"]
     pub fn from_findings(findings: &[Finding]) -> Self {
         if findings.is_empty() {
             return Self::Safe;
