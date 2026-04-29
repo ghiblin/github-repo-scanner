@@ -33,7 +33,7 @@ fn ruleset() -> Arc<RuleSet> {
 #[test]
 fn detects_child_process_require() {
     let findings = NodeJsAnalyzer.analyze(
-        &snapshot(r#"const cp = require('child_process');"#),
+        &snapshot("const cp = require('child_process');"),
         &ruleset(),
     );
     assert_eq!(findings.len(), 1);

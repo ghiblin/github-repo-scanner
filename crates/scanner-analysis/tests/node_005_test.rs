@@ -34,7 +34,7 @@ fn ruleset() -> Arc<RuleSet> {
 #[test]
 fn detects_hardcoded_api_key() {
     let findings = NodeJsAnalyzer.analyze(
-        &snapshot(r#"const api_key = 'sk-abcdefghijklmnopqrstuvwx';"#),
+        &snapshot("const api_key = 'sk-abcdefghijklmnopqrstuvwx';"),
         &ruleset(),
     );
     assert_eq!(findings.len(), 1);
@@ -43,7 +43,7 @@ fn detects_hardcoded_api_key() {
 #[test]
 fn detects_hardcoded_token() {
     let findings = NodeJsAnalyzer.analyze(
-        &snapshot(r#"const token = 'ghp_abcdefghijklmnopqrstuvwxyz12'"#),
+        &snapshot("const token = 'ghp_abcdefghijklmnopqrstuvwxyz12'"),
         &ruleset(),
     );
     assert_eq!(findings.len(), 1);
@@ -51,6 +51,6 @@ fn detects_hardcoded_token() {
 
 #[test]
 fn ignores_short_values() {
-    let findings = NodeJsAnalyzer.analyze(&snapshot(r#"const token = 'short'"#), &ruleset());
+    let findings = NodeJsAnalyzer.analyze(&snapshot("const token = 'short'"), &ruleset());
     assert!(findings.is_empty());
 }
