@@ -1,0 +1,15 @@
+[[rules]]
+id = "rul_018f1234-abcd-7000-8000-000000000003"
+name = "Rule A"
+description = "First rule."
+severity = "Low"
+language = "NodeJs"
+pattern = { type = "Regex", value = "foo" }
+
+[[rules]]
+id = "rul_018f1234-abcd-7000-8000-000000000003"
+name = "Rule B"
+description = "Duplicate ID."
+severity = "Low"
+language = "NodeJs"
+pattern = { type = "Regex", value = "bar" }

@@ -36,6 +36,7 @@ pub struct Rule {
     pub pattern: Pattern,
 }
 
+#[derive(Debug)]
 pub struct RuleSet {
     pub rules: Vec<Rule>,
 }

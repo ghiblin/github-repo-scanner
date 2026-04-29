@@ -1,0 +1,5 @@
+[[rules]]
+id = "rul_018f1234-abcd-7000-8000-000000000004"
+name = "Missing severity"
+language = "NodeJs"
+pattern = { type = "Regex", value = "foo" }
