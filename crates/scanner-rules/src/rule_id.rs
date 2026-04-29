@@ -30,8 +30,8 @@ impl RuleId {
             return Err(RuleIdError::InvalidPrefix(s.to_owned()));
         }
         let uuid_part = &s[expected_prefix.len()..];
-        let uuid =
-            Uuid::parse_str(uuid_part).map_err(|_| RuleIdError::InvalidUuid(uuid_part.to_owned()))?;
+        let uuid = Uuid::parse_str(uuid_part)
+            .map_err(|_| RuleIdError::InvalidUuid(uuid_part.to_owned()))?;
         let version = uuid.get_version_num();
         if version != 7 {
             #[allow(clippy::cast_possible_truncation)]
