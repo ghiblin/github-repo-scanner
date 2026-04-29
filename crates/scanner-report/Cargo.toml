@@ -9,7 +9,7 @@ workspace = true
 [dependencies]
 scanner-analysis = { path = "../scanner-analysis" }
 scanner-rules = { path = "../scanner-rules" }
-colored = "2"
+colored = "3"
 
 [dev-dependencies]
 insta = "1"
