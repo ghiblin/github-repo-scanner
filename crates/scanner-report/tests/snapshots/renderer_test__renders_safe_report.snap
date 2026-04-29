@@ -1,0 +1,7 @@
+---
+source: crates/scanner-report/tests/renderer_test.rs
+assertion_line: 20
+expression: output
+---
+
+   SAFE — no findings
