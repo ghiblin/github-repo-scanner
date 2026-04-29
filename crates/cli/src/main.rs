@@ -84,7 +84,7 @@ async fn fetch_snapshot(
 fn parse_github_url(url: &str) -> anyhow::Result<(String, String)> {
     let url = url.trim_end_matches('/');
     let parts: Vec<&str> = url.rsplitn(3, '/').collect();
-    if parts.len() < 2 {
+    if parts.len() < 3 || !parts[2].contains("github.com") {
         anyhow::bail!("invalid GitHub URL — expected https://github.com/owner/repo");
     }
     Ok((parts[1].to_owned(), parts[0].to_owned()))

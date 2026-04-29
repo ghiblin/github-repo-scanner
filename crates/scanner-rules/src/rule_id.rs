@@ -12,6 +12,8 @@ pub enum RuleIdError {
     InvalidPrefix(String),
     #[error("rule ID contains an invalid UUID: {0}")]
     InvalidUuid(String),
+    #[error("rule ID must use UUID v7, got version {0}")]
+    NotV7(u8),
 }
 
 impl RuleId {
@@ -21,15 +23,20 @@ impl RuleId {
     }
 
     /// # Errors
-    /// Returns an error if the string does not start with `rul_` or the UUID part is invalid.
+    /// Returns an error if the string does not start with `rul_`, the UUID part is invalid, or the UUID is not version 7.
     pub fn parse(s: &str) -> Result<Self, RuleIdError> {
         let expected_prefix = format!("{PREFIX}_");
         if !s.starts_with(&expected_prefix) {
             return Err(RuleIdError::InvalidPrefix(s.to_owned()));
         }
         let uuid_part = &s[expected_prefix.len()..];
-        Uuid::parse_str(uuid_part)
-            .map_err(|_| RuleIdError::InvalidUuid(uuid_part.to_owned()))?;
+        let uuid =
+            Uuid::parse_str(uuid_part).map_err(|_| RuleIdError::InvalidUuid(uuid_part.to_owned()))?;
+        let version = uuid.get_version_num();
+        if version != 7 {
+            #[allow(clippy::cast_possible_truncation)]
+            return Err(RuleIdError::NotV7(version as u8));
+        }
         Ok(Self(s.to_owned()))
     }
 

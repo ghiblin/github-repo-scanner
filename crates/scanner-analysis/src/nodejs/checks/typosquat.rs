@@ -5,7 +5,7 @@ use strsim::osa_distance;
 
 #[must_use]
 pub fn check(file: &RepoFile, rule: &Rule, known_packages: &[String]) -> Vec<Finding> {
-    if file.path.file_name().is_some_and(|n| n != "package.json") {
+    if file.path.file_name().is_none_or(|n| n != "package.json") {
         return vec![];
     }
     let FileContent::Text(ref content) = file.content else {
