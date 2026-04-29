@@ -41,6 +41,7 @@ These rules are enforced across the entire codebase. They are not guidelines —
 ### Types
 - Prefer `&str` over `String` in function parameters when ownership is not required.
 - Use newtypes to distinguish semantically different strings (e.g. `RuleId(String)` vs a plain `String`).
+- Value Object newtypes must follow the **prefix + UUID v7** convention: format is `<prefix>_<uuid_v7>` (e.g. `rul_01956b3a-...` for `RuleId`). Each Value Object must expose `new() -> Self` (generates a fresh UUID v7) and `parse(s: &str) -> Result<Self, _>` (validates prefix and UUID format). No other constructor is permitted.
 - `#[must_use]` on all types where ignoring the value is almost certainly a bug (`Finding`, `Verdict`).
 - Avoid `clone()` in hot paths. Use `Arc` for shared ownership of large read-only data (e.g. `Arc<RuleSet>`).
 

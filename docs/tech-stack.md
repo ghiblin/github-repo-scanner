@@ -25,9 +25,10 @@ Library crates are pure domain logic — no I/O side effects except `repository`
 
 ### Networking
 - **`reqwest`** (with `json` feature) — HTTP client for GitHub API calls
-- **`tokio`** (full feature) — async runtime
+- **`tokio`** (`rt-multi-thread`, `macros`) — async runtime and `#[tokio::main]` / `#[tokio::test]` macros
 
 ### Serialization
+- **`uuid`** (`v7`, `serde`) — UUID v7 generation for Value Object identifiers
 - **`serde`** (derive feature) — serialization framework
 - **`toml`** — TOML rule file parsing
 - **`serde_json`** — GitHub API response parsing
