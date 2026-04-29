@@ -17,30 +17,35 @@ pub fn check(file: &RepoFile, rule: &Rule, known_packages: &[String]) -> Vec<Fin
 
     let dep_sections = ["dependencies", "devDependencies", "peerDependencies"];
     let mut findings = Vec::new();
-
     for section in dep_sections {
-        let Some(deps) = json.get(section).and_then(|d| d.as_object()) else {
-            continue;
-        };
-        for dep_name in deps.keys() {
-            for known in known_packages {
-                if dep_name == known {
-                    continue;
-                }
-                if osa_distance(dep_name, known) == 1 {
-                    findings.push(Finding {
-                        rule_id: rule.id.clone(),
-                        severity: rule.severity.clone(),
-                        file: file.path.clone(),
-                        line: None,
-                        message: format!(
-                            "'{dep_name}' is 1 character away from known package '{known}'"
-                        ),
-                        snippet: Some(dep_name.clone()),
-                    });
-                }
-            }
+        if let Some(deps) = json.get(section).and_then(|d| d.as_object()) {
+            check_section(deps.keys(), rule, file, known_packages, &mut findings);
         }
     }
     findings
+}
+
+fn check_section<'a>(
+    dep_names: impl Iterator<Item = &'a String>,
+    rule: &Rule,
+    file: &RepoFile,
+    known_packages: &[String],
+    findings: &mut Vec<Finding>,
+) {
+    for dep_name in dep_names {
+        for known in known_packages {
+            if dep_name != known && osa_distance(dep_name, known) == 1 {
+                findings.push(Finding {
+                    rule_id: rule.id.clone(),
+                    severity: rule.severity.clone(),
+                    file: file.path.clone(),
+                    line: None,
+                    message: format!(
+                        "'{dep_name}' is 1 character away from known package '{known}'"
+                    ),
+                    snippet: Some(dep_name.clone()),
+                });
+            }
+        }
+    }
 }
