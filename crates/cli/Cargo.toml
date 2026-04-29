@@ -1,0 +1,26 @@
+[package]
+name = "repo-scanner"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "repo-scanner"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+anyhow = "1"
+thiserror = "1"
+indicatif = "0.17"
+scanner-repository = { path = "../scanner-repository" }
+scanner-rules = { path = "../scanner-rules" }
+scanner-analysis = { path = "../scanner-analysis" }
+scanner-report = { path = "../scanner-report" }
+
+[dev-dependencies]
+tempfile = "3"
+walkdir = "2"

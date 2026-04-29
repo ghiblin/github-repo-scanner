@@ -1,0 +1,7 @@
+[[rules]]
+id = "rul_018f1234-abcd-7000-8000-000000000002"
+name = "Bad pattern"
+description = "Unknown pattern type."
+severity = "High"
+language = "NodeJs"
+pattern = { type = "Unknown", value = "foo" }

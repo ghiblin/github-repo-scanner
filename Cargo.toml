@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "crates/cli",
+    "crates/scanner-repository",
+    "crates/scanner-rules",
+    "crates/scanner-analysis",
+    "crates/scanner-report",
+]
+resolver = "2"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = "warn"

