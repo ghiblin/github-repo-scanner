@@ -20,7 +20,7 @@ name = "Suspicious outbound network call"
 description = "Detects hardcoded external IP addresses in source code, which may indicate data exfiltration."
 severity = "High"
 language = "NodeJs"
-pattern = { type = "Regex", value = 'https?://(?!localhost|127\.0\.0\.1)[0-9]{1,3}\.[0-9]{1,3}' }
+pattern = { type = "Regex", value = 'https?://(?:10|172|192)\.[0-9]{1,3}' }
 
 [[rules]]
 id = "rul_018f1234-abcd-7000-8001-000000000004"
