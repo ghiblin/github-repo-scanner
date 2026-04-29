@@ -29,22 +29,21 @@ fn create_fake_repo() -> TempDir {
     dir
 }
 
-#[tokio::test]
-async fn clones_local_repo_and_reads_files() {
+#[test]
+fn clones_local_repo_and_reads_files() {
     let fake_repo = create_fake_repo();
     let url = format!("file://{}", fake_repo.path().display());
     let client = LocalCloneClient::new();
-    let snapshot = client.fetch_url(&url).await.expect("clone should succeed");
+    let snapshot = client.fetch_url(&url).expect("clone should succeed");
     assert_eq!(snapshot.files.len(), 1);
     assert_eq!(snapshot.files[0].path.to_str().unwrap(), "package.json");
 }
 
-#[tokio::test]
-async fn returns_clone_failed_for_invalid_url() {
+#[test]
+fn returns_clone_failed_for_invalid_url() {
     let client = LocalCloneClient::new();
     let err = client
         .fetch_url("https://github.com/nonexistent-org-xyz/no-such-repo-abc123")
-        .await
         .unwrap_err();
     assert!(matches!(err, scanner_repository::RepositoryError::CloneFailed(_)));
 }

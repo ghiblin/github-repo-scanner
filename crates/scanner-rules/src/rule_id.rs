@@ -15,10 +15,13 @@ pub enum RuleIdError {
 }
 
 impl RuleId {
+    #[must_use]
     pub fn new() -> Self {
         Self(format!("{PREFIX}_{}", Uuid::now_v7()))
     }
 
+    /// # Errors
+    /// Returns an error if the string does not start with `rul_` or the UUID part is invalid.
     pub fn parse(s: &str) -> Result<Self, RuleIdError> {
         let expected_prefix = format!("{PREFIX}_");
         if !s.starts_with(&expected_prefix) {
@@ -30,6 +33,7 @@ impl RuleId {
         Ok(Self(s.to_owned()))
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }

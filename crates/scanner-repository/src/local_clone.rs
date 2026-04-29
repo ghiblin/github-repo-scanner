@@ -7,11 +7,14 @@ use crate::{
 pub struct LocalCloneClient;
 
 impl LocalCloneClient {
+    #[must_use]
     pub fn new() -> Self {
         Self
     }
 
-    pub async fn fetch_url(&self, url: &str) -> Result<RepoSnapshot, RepositoryError> {
+    /// # Errors
+    /// Returns an error if the git clone fails, directory walking fails, or I/O errors occur.
+    pub fn fetch_url(&self, url: &str) -> Result<RepoSnapshot, RepositoryError> {
         let tmp = tempfile::TempDir::new()?;
         let output = std::process::Command::new("git")
             .args(["clone", "--depth=1", url, tmp.path().to_str().unwrap_or(".")])
@@ -48,7 +51,7 @@ fn walk_dir(
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
-            if path.file_name().map(|n| n == ".git").unwrap_or(false) {
+            if path.file_name().is_some_and(|n| n == ".git") {
                 continue;
             }
             walk_dir(base, &path, files)?;
@@ -72,6 +75,6 @@ fn walk_dir(
 
 impl RepositoryPort for LocalCloneClient {
     async fn fetch(&self, _owner: &str, name: &str) -> Result<RepoSnapshot, RepositoryError> {
-        self.fetch_url(name).await
+        self.fetch_url(name)
     }
 }

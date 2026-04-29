@@ -4,11 +4,7 @@ use scanner_rules::Rule;
 
 #[must_use]
 pub fn check(file: &RepoFile, rule: &Rule, keys: &[String]) -> Vec<Finding> {
-    if file
-        .path
-        .file_name()
-        .is_none_or(|n| n != "package.json")
-    {
+    if file.path.file_name().is_none_or(|n| n != "package.json") {
         return vec![];
     }
     let scanner_repository::FileContent::Text(ref content) = file.content else {

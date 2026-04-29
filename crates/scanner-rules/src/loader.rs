@@ -6,6 +6,8 @@ struct RuleSetFile {
     rules: Vec<crate::models::Rule>,
 }
 
+/// # Errors
+/// Returns an error if the file cannot be read, the TOML is malformed, or duplicate rule IDs are found.
 pub fn load(path: &Path) -> Result<RuleSet, RulesError> {
     let contents = std::fs::read_to_string(path)?;
     let file: RuleSetFile = toml::from_str(&contents)?;
