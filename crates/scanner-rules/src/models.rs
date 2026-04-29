@@ -61,7 +61,9 @@ mod tests {
             description: "desc".to_owned(),
             severity: Severity::High,
             language: Language::NodeJs,
-            pattern: Pattern::Regex { value: "foo".to_owned() },
+            pattern: Pattern::Regex {
+                value: "foo".to_owned(),
+            },
         };
         let ruleset = RuleSet { rules: vec![rule] };
         assert_eq!(ruleset.rules.len(), 1);

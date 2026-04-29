@@ -17,7 +17,12 @@ impl LocalCloneClient {
     pub fn fetch_url(&self, url: &str) -> Result<RepoSnapshot, RepositoryError> {
         let tmp = tempfile::TempDir::new()?;
         let output = std::process::Command::new("git")
-            .args(["clone", "--depth=1", url, tmp.path().to_str().unwrap_or(".")])
+            .args([
+                "clone",
+                "--depth=1",
+                url,
+                tmp.path().to_str().unwrap_or("."),
+            ])
             .output()?;
 
         if !output.status.success() {

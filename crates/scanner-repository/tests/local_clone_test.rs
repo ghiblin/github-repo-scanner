@@ -10,11 +10,23 @@ fn create_fake_repo() -> TempDir {
         .output()
         .unwrap();
     std::process::Command::new("git")
-        .args(["-C", repo_path.to_str().unwrap(), "config", "user.email", "test@test.com"])
+        .args([
+            "-C",
+            repo_path.to_str().unwrap(),
+            "config",
+            "user.email",
+            "test@test.com",
+        ])
         .output()
         .unwrap();
     std::process::Command::new("git")
-        .args(["-C", repo_path.to_str().unwrap(), "config", "user.name", "Test"])
+        .args([
+            "-C",
+            repo_path.to_str().unwrap(),
+            "config",
+            "user.name",
+            "Test",
+        ])
         .output()
         .unwrap();
     fs::write(repo_path.join("package.json"), r#"{"name":"test"}"#).unwrap();
@@ -45,5 +57,8 @@ fn returns_clone_failed_for_invalid_url() {
     let err = client
         .fetch_url("https://github.com/nonexistent-org-xyz/no-such-repo-abc123")
         .unwrap_err();
-    assert!(matches!(err, scanner_repository::RepositoryError::CloneFailed(_)));
+    assert!(matches!(
+        err,
+        scanner_repository::RepositoryError::CloneFailed(_)
+    ));
 }

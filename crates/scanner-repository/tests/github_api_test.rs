@@ -24,7 +24,10 @@ async fn fetches_repo_with_text_files() {
         .await;
 
     let client = GithubApiClient::new(server.url());
-    let snapshot = client.fetch("alice", "repo").await.expect("fetch should succeed");
+    let snapshot = client
+        .fetch("alice", "repo")
+        .await
+        .expect("fetch should succeed");
 
     assert_eq!(snapshot.owner, "alice");
     assert_eq!(snapshot.name, "repo");
@@ -46,7 +49,10 @@ async fn returns_not_found_on_404() {
 
     let client = GithubApiClient::new(server.url());
     let err = client.fetch("alice", "missing").await.unwrap_err();
-    assert!(matches!(err, scanner_repository::RepositoryError::NotFound { .. }));
+    assert!(matches!(
+        err,
+        scanner_repository::RepositoryError::NotFound { .. }
+    ));
 }
 
 #[tokio::test]
@@ -60,5 +66,8 @@ async fn returns_rate_limited_on_403() {
 
     let client = GithubApiClient::new(server.url());
     let err = client.fetch("alice", "repo").await.unwrap_err();
-    assert!(matches!(err, scanner_repository::RepositoryError::RateLimited));
+    assert!(matches!(
+        err,
+        scanner_repository::RepositoryError::RateLimited
+    ));
 }

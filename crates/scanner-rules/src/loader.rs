@@ -1,5 +1,5 @@
-use std::{collections::HashSet, path::Path};
 use crate::{error::RulesError, models::RuleSet};
+use std::{collections::HashSet, path::Path};
 
 #[derive(serde::Deserialize)]
 struct RuleSetFile {
