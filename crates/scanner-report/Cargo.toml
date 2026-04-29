@@ -1,0 +1,15 @@
+[package]
+name = "scanner-report"
+version = "0.1.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+scanner-analysis = { path = "../scanner-analysis" }
+scanner-rules = { path = "../scanner-rules" }
+colored = "2"
+
+[dev-dependencies]
+insta = "1"
