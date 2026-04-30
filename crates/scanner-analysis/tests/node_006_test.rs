@@ -18,7 +18,7 @@ fn snapshot(content: &str) -> RepoSnapshot {
 fn ruleset() -> Arc<RuleSet> {
     Arc::new(RuleSet {
         rules: vec![Rule {
-            id: RuleId::parse("rul_018f1234-abcd-7000-8001-000000000006").unwrap(),
+            id: RuleId::parse("NODE-006").unwrap(),
             name: "Typosquatting risk".to_owned(),
             description: String::new(),
             severity: Severity::Medium,

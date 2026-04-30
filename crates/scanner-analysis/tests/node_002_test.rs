@@ -18,7 +18,7 @@ fn make_snapshot(filename: &str, content: &str) -> RepoSnapshot {
 fn node_002_ruleset() -> Arc<RuleSet> {
     Arc::new(RuleSet {
         rules: vec![Rule {
-            id: RuleId::parse("rul_018f1234-abcd-7000-8001-000000000002").unwrap(),
+            id: RuleId::parse("NODE-002").unwrap(),
             name: "Obfuscated JavaScript".to_owned(),
             description: String::new(),
             severity: Severity::High,
