@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn ruleset_holds_rules() {
-        let id = crate::RuleId::parse("rul_018f1234-abcd-7000-8000-000000000001").unwrap();
+        let id = crate::RuleId::parse("NODE-001").unwrap();
         let rule = Rule {
             id,
             name: "Test rule".to_owned(),
