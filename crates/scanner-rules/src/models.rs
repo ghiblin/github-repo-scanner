@@ -17,6 +17,25 @@ pub enum Language {
     Any,
 }
 
+impl Language {
+    #[must_use]
+    pub fn prefix(&self) -> &'static str {
+        match self {
+            Language::NodeJs => "NODE",
+            Language::Any    => "ANY",
+        }
+    }
+
+    #[must_use]
+    pub fn from_prefix(s: &str) -> Option<Self> {
+        match s {
+            "NODE" => Some(Language::NodeJs),
+            "ANY"  => Some(Language::Any),
+            _      => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(tag = "type")]
 pub enum Pattern {
@@ -50,6 +69,36 @@ mod tests {
         assert!(Severity::Critical > Severity::High);
         assert!(Severity::High > Severity::Medium);
         assert!(Severity::Medium > Severity::Low);
+    }
+
+    #[test]
+    fn nodejs_prefix_is_node() {
+        assert_eq!(Language::NodeJs.prefix(), "NODE");
+    }
+
+    #[test]
+    fn any_prefix_is_any() {
+        assert_eq!(Language::Any.prefix(), "ANY");
+    }
+
+    #[test]
+    fn from_prefix_node_returns_nodejs() {
+        assert_eq!(Language::from_prefix("NODE"), Some(Language::NodeJs));
+    }
+
+    #[test]
+    fn from_prefix_any_returns_any() {
+        assert_eq!(Language::from_prefix("ANY"), Some(Language::Any));
+    }
+
+    #[test]
+    fn from_prefix_unknown_returns_none() {
+        assert_eq!(Language::from_prefix("FOO"), None);
+    }
+
+    #[test]
+    fn from_prefix_empty_returns_none() {
+        assert_eq!(Language::from_prefix(""), None);
     }
 
     #[test]
