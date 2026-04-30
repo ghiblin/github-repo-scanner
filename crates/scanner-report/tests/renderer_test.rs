@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 fn finding(severity: Severity, file: &str, line: u32, msg: &str) -> Finding {
     Finding {
-        rule_id: RuleId::parse("rul_018f1234-abcd-7000-8001-000000000001").unwrap(),
+        rule_id: RuleId::parse("NODE-001").unwrap(),
         severity,
         file: PathBuf::from(file),
         line: Some(line),
