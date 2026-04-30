@@ -1,0 +1,7 @@
+[[rules]]
+id = "ANY-001"
+name = "Mismatch rule"
+description = "ID prefix is ANY but language is NodeJs."
+severity = "High"
+language = "NodeJs"
+pattern = { type = "Regex", value = "foo" }

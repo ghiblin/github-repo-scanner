@@ -34,3 +34,23 @@ fn loads_default_nodejs_ruleset() {
     let ruleset = load(path).expect("default ruleset must be valid");
     assert_eq!(ruleset.rules.len(), 6);
 }
+
+#[test]
+fn rejects_node_id_on_any_language() {
+    let path = Path::new("tests/fixtures/id_language_mismatch.toml");
+    let err = load(path).unwrap_err();
+    assert!(
+        err.to_string().contains("does not match"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn rejects_any_id_on_nodejs_language() {
+    let path = Path::new("tests/fixtures/any_id_language_mismatch.toml");
+    let err = load(path).unwrap_err();
+    assert!(
+        err.to_string().contains("does not match"),
+        "unexpected error: {err}"
+    );
+}
