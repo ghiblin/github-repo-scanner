@@ -2,7 +2,7 @@ use std::{path::PathBuf, process, sync::Arc};
 
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use scanner_analysis::{Analyzer, NodeJsAnalyzer, VsCodeAnalyzer, Verdict};
+use scanner_analysis::{Analyzer, NodeJsAnalyzer, Verdict, VsCodeAnalyzer};
 use scanner_report::render;
 use scanner_repository::{GithubApiClient, LocalCloneClient, RepositoryPort};
 use scanner_rules::loader::load;
@@ -23,6 +23,10 @@ struct Args {
     /// Path to custom TOML ruleset
     #[arg(long, value_name = "FILE")]
     rules: Option<PathBuf>,
+
+    /// GitHub personal access token (overrides `GITHUB_TOKEN` env var)
+    #[arg(long, value_name = "TOKEN")]
+    token: Option<String>,
 }
 
 #[tokio::main]
@@ -33,6 +37,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn run(args: Args) -> anyhow::Result<i32> {
+    let token = resolve_token(args.token)?;
     let (owner, name) = parse_github_url(&args.github_url)?;
 
     let rules_path = args.rules.unwrap_or_else(|| {
@@ -43,7 +48,7 @@ async fn run(args: Args) -> anyhow::Result<i32> {
     let ruleset = Arc::new(load(&rules_path)?);
     let vscode_ruleset = Arc::new(load(&vscode_rules_path)?);
 
-    let snapshot = fetch_snapshot(&args.github_url, &owner, &name, args.clone).await?;
+    let snapshot = fetch_snapshot(&args.github_url, &owner, &name, args.clone, &token).await?;
 
     let mut findings = NodeJsAnalyzer.analyze(&snapshot, &ruleset);
     findings.extend(VsCodeAnalyzer.analyze(&snapshot, &vscode_ruleset));
@@ -58,11 +63,32 @@ async fn run(args: Args) -> anyhow::Result<i32> {
     })
 }
 
+fn resolve_token(flag: Option<String>) -> anyhow::Result<String> {
+    let token = if let Some(t) = flag {
+        t
+    } else if let Ok(t) = std::env::var("GITHUB_TOKEN") {
+        if t.is_empty() {
+            anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
+        }
+        t
+    } else {
+        anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
+    };
+    if token.is_empty() {
+        anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.");
+    }
+    if token.bytes().any(|b| b < 32 || b == 127) {
+        anyhow::bail!("GitHub token contains invalid characters");
+    }
+    Ok(token)
+}
+
 async fn fetch_snapshot(
     url: &str,
     owner: &str,
     name: &str,
     clone: bool,
+    token: &str,
 ) -> anyhow::Result<scanner_repository::RepoSnapshot> {
     let pb = ProgressBar::new_spinner();
     pb.set_style(
@@ -74,10 +100,10 @@ async fn fetch_snapshot(
 
     let snapshot = if clone {
         pb.set_message(format!("Cloning {owner}/{name}..."));
-        LocalCloneClient::new().fetch_url(url)?
+        LocalCloneClient::new(token).fetch_url(url)?
     } else {
         pb.set_message(format!("Fetching {owner}/{name}..."));
-        GithubApiClient::new("https://api.github.com")
+        GithubApiClient::new("https://api.github.com", token)?
             .fetch(owner, name)
             .await?
     };
