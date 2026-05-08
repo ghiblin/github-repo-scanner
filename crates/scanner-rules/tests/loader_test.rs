@@ -54,3 +54,11 @@ fn rejects_any_id_on_nodejs_language() {
         "unexpected error: {err}"
     );
 }
+
+#[test]
+fn loads_valid_vscode_ruleset() {
+    let path = Path::new("tests/fixtures/valid_vscode.toml");
+    let ruleset = load(path).expect("should load VSCODE ruleset");
+    assert_eq!(ruleset.rules.len(), 1);
+    assert_eq!(ruleset.rules[0].name, "Test VsCode rule");
+}

@@ -15,6 +15,7 @@ pub enum Severity {
 pub enum Language {
     NodeJs,
     Any,
+    VsCode,
 }
 
 impl Language {
@@ -23,15 +24,17 @@ impl Language {
         match self {
             Language::NodeJs => "NODE",
             Language::Any    => "ANY",
+            Language::VsCode => "VSCODE",
         }
     }
 
     #[must_use]
     pub fn from_prefix(s: &str) -> Option<Self> {
         match s {
-            "NODE" => Some(Language::NodeJs),
-            "ANY"  => Some(Language::Any),
-            _      => None,
+            "NODE"   => Some(Language::NodeJs),
+            "ANY"    => Some(Language::Any),
+            "VSCODE" => Some(Language::VsCode),
+            _        => None,
         }
     }
 }
@@ -43,6 +46,7 @@ pub enum Pattern {
     ScriptKey { keys: Vec<String> },
     FileMatch { glob: String },
     TypoSquat { known_packages: Vec<String> },
+    ExtensionIdCheck,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -99,6 +103,16 @@ mod tests {
     #[test]
     fn from_prefix_empty_returns_none() {
         assert_eq!(Language::from_prefix(""), None);
+    }
+
+    #[test]
+    fn vscode_prefix_is_vscode() {
+        assert_eq!(Language::VsCode.prefix(), "VSCODE");
+    }
+
+    #[test]
+    fn from_prefix_vscode_returns_vscode() {
+        assert_eq!(Language::from_prefix("VSCODE"), Some(Language::VsCode));
     }
 
     #[test]

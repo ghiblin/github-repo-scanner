@@ -90,4 +90,9 @@ mod tests {
         let id = RuleId::parse("NODE-001").unwrap();
         assert_eq!(id.as_str(), "NODE-001");
     }
+
+    #[test]
+    fn parse_accepts_valid_vscode_id() {
+        assert!(RuleId::parse("VSCODE-001").is_ok());
+    }
 }
