@@ -12,7 +12,7 @@ fn shows_help_without_args() {
     assert!(stdout.contains("GITHUB_URL"));
 }
 
-use scanner_analysis::{Analyzer, NodeJsAnalyzer, VsCodeAnalyzer, Verdict};
+use scanner_analysis::{Analyzer, NodeJsAnalyzer, Verdict, VsCodeAnalyzer};
 use scanner_repository::{FileContent, RepoFile, RepoSnapshot};
 use scanner_rules::loader::load;
 use std::{path::PathBuf, sync::Arc};
@@ -76,5 +76,50 @@ fn malicious_vscode_repo_produces_findings() {
     assert!(
         !findings.is_empty(),
         "expected VSCODE findings from malicious-vscode fixture"
+    );
+}
+
+#[test]
+fn exits_with_error_when_no_token_provided() {
+    let output = bin()
+        .arg("https://github.com/owner/repo")
+        .env_remove("GITHUB_TOKEN")
+        .output()
+        .expect("binary must exist");
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("GitHub token is required"),
+        "expected token-required error, got: {stderr}"
+    );
+}
+
+#[test]
+fn accepts_token_from_env_var() {
+    let output = bin()
+        .arg("https://github.com/owner/repo")
+        .env("GITHUB_TOKEN", "env-token-value")
+        .output()
+        .expect("binary must exist");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.contains("GitHub token is required"),
+        "should not show token error when GITHUB_TOKEN is set, got: {stderr}"
+    );
+}
+
+#[test]
+fn token_flag_takes_precedence_over_env_var() {
+    let output = bin()
+        .arg("https://github.com/owner/repo")
+        .arg("--token")
+        .arg("flag-token-value")
+        .env("GITHUB_TOKEN", "env-token-value")
+        .output()
+        .expect("binary must exist");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.contains("GitHub token is required"),
+        "should not show token error when --token is set, got: {stderr}"
     );
 }
