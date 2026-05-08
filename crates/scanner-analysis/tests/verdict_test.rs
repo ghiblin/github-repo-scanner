@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 fn finding(severity: Severity) -> Finding {
     Finding {
-        rule_id: scanner_rules::RuleId::parse("rul_018f1234-abcd-7000-8000-000000000001").unwrap(),
+        rule_id: scanner_rules::RuleId::parse("NODE-001").unwrap(),
         severity,
         file: PathBuf::from("test.js"),
         line: None,

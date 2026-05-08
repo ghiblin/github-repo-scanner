@@ -1,0 +1,7 @@
+[[rules]]
+id = "VSCODE-001"
+name = "Test VsCode rule"
+description = "A valid VS Code test rule."
+severity = "Medium"
+language = "VsCode"
+pattern = { type = "ExtensionIdCheck" }

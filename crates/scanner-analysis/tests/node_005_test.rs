@@ -18,7 +18,7 @@ fn snapshot(content: &str) -> RepoSnapshot {
 fn ruleset() -> Arc<RuleSet> {
     Arc::new(RuleSet {
         rules: vec![Rule {
-            id: RuleId::parse("rul_018f1234-abcd-7000-8001-000000000005").unwrap(),
+            id: RuleId::parse("NODE-005").unwrap(),
             name: "Hardcoded secret or token".to_owned(),
             description: String::new(),
             severity: Severity::Critical,

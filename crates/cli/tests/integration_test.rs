@@ -12,7 +12,7 @@ fn shows_help_without_args() {
     assert!(stdout.contains("GITHUB_URL"));
 }
 
-use scanner_analysis::{Analyzer, NodeJsAnalyzer, Verdict};
+use scanner_analysis::{Analyzer, NodeJsAnalyzer, VsCodeAnalyzer, Verdict};
 use scanner_repository::{FileContent, RepoFile, RepoSnapshot};
 use scanner_rules::loader::load;
 use std::{path::PathBuf, sync::Arc};
@@ -45,6 +45,11 @@ fn default_ruleset() -> Arc<scanner_rules::RuleSet> {
     Arc::new(load(&path).expect("default ruleset must load"))
 }
 
+fn vscode_ruleset() -> Arc<scanner_rules::RuleSet> {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../rules/vscode.toml");
+    Arc::new(load(&path).expect("vscode ruleset must load"))
+}
+
 #[test]
 fn clean_repo_produces_safe_verdict() {
     let snapshot = load_fixture("clean-nodejs");
@@ -61,5 +66,15 @@ fn malicious_repo_produces_dangerous_verdict() {
         findings.len() >= 2,
         "expected at least 2 findings, got {}",
         findings.len()
+    );
+}
+
+#[test]
+fn malicious_vscode_repo_produces_findings() {
+    let snapshot = load_fixture("malicious-vscode");
+    let findings = VsCodeAnalyzer.analyze(&snapshot, &vscode_ruleset());
+    assert!(
+        !findings.is_empty(),
+        "expected VSCODE findings from malicious-vscode fixture"
     );
 }

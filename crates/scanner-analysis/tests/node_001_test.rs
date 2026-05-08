@@ -18,7 +18,7 @@ fn make_snapshot(filename: &str, content: &str) -> RepoSnapshot {
 fn node_001_ruleset() -> Arc<RuleSet> {
     Arc::new(RuleSet {
         rules: vec![Rule {
-            id: RuleId::parse("rul_018f1234-abcd-7000-8001-000000000001").unwrap(),
+            id: RuleId::parse("NODE-001").unwrap(),
             name: "Malicious postinstall script".to_owned(),
             description: String::new(),
             severity: Severity::Critical,

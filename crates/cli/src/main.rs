@@ -2,7 +2,7 @@ use std::{path::PathBuf, process, sync::Arc};
 
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use scanner_analysis::{Analyzer, NodeJsAnalyzer, Verdict};
+use scanner_analysis::{Analyzer, NodeJsAnalyzer, VsCodeAnalyzer, Verdict};
 use scanner_report::render;
 use scanner_repository::{GithubApiClient, LocalCloneClient, RepositoryPort};
 use scanner_rules::loader::load;
@@ -38,11 +38,15 @@ async fn run(args: Args) -> anyhow::Result<i32> {
     let rules_path = args.rules.unwrap_or_else(|| {
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../rules/nodejs.toml")
     });
+    let vscode_rules_path =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../rules/vscode.toml");
     let ruleset = Arc::new(load(&rules_path)?);
+    let vscode_ruleset = Arc::new(load(&vscode_rules_path)?);
 
     let snapshot = fetch_snapshot(&args.github_url, &owner, &name, args.clone).await?;
 
-    let findings = NodeJsAnalyzer.analyze(&snapshot, &ruleset);
+    let mut findings = NodeJsAnalyzer.analyze(&snapshot, &ruleset);
+    findings.extend(VsCodeAnalyzer.analyze(&snapshot, &vscode_ruleset));
     let verdict = Verdict::from_findings(&findings);
 
     print!("{}", render(&findings, &verdict, true));
