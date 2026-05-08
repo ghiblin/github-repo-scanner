@@ -32,7 +32,14 @@ fn rejects_missing_required_field() {
 fn loads_default_nodejs_ruleset() {
     let path = std::path::Path::new("../../rules/nodejs.toml");
     let ruleset = load(path).expect("default ruleset must be valid");
-    assert_eq!(ruleset.rules.len(), 6);
+    assert_eq!(ruleset.rules.len(), 11);
+}
+
+#[test]
+fn loads_default_vscode_ruleset() {
+    let path = std::path::Path::new("../../rules/vscode.toml");
+    let ruleset = load(path).expect("vscode ruleset must be valid");
+    assert_eq!(ruleset.rules.len(), 4);
 }
 
 #[test]

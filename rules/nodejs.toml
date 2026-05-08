@@ -45,3 +45,43 @@ description = "Flags dependency names with a Levenshtein distance of 1 from a kn
 severity = "Medium"
 language = "NodeJs"
 pattern = { type = "TypoSquat", known_packages = ["express", "lodash", "react", "axios", "moment", "webpack", "babel", "typescript", "eslint", "prettier"] }
+
+[[rules]]
+id = "NODE-007"
+name = "Credential file access"
+description = "Reads sensitive credential files (~/.ssh, ~/.aws, ~/.gnupg, ~/.npmrc, ~/.netrc), a common pattern for credential exfiltration in malicious npm packages."
+severity = "Critical"
+language = "NodeJs"
+pattern = { type = "Regex", value = "readFileSync\\s*\\(['\"].*(?:\\.ssh|\\.aws|\\.gnupg|\\.npmrc|\\.netrc)|readFile\\s*\\(['\"].*(?:\\.ssh|\\.aws|\\.gnupg|\\.npmrc|\\.netrc)" }
+
+[[rules]]
+id = "NODE-008"
+name = "Dynamic eval alternative"
+description = "Uses new Function(), setTimeout(string), or setInterval(string) to execute dynamic code — common obfuscation techniques that bypass static eval detection."
+severity = "High"
+language = "NodeJs"
+pattern = { type = "Regex", value = "new\\s+Function\\s*\\(|setTimeout\\s*\\(\\s*['\"]|setInterval\\s*\\(\\s*['\"]" }
+
+[[rules]]
+id = "NODE-009"
+name = "Prototype pollution"
+description = "Mutates Object.prototype or accesses __proto__ directly, enabling silent injection of properties into every downstream object in the process."
+severity = "High"
+language = "NodeJs"
+pattern = { type = "Regex", value = 'Object\.prototype\.|__proto__\s*\[' }
+
+[[rules]]
+id = "NODE-010"
+name = "Env variable exfiltration"
+description = "Combines process.env access with a network primitive (fetch, http, axios, request) on the same line — a strong indicator of credential exfiltration."
+severity = "Critical"
+language = "NodeJs"
+pattern = { type = "Regex", value = 'process\.env.*(?:fetch|http|axios|request)|(?:fetch|http|axios|request).*process\.env' }
+
+[[rules]]
+id = "NODE-011"
+name = "Expanded lifecycle hooks"
+description = "Detects the full set of npm lifecycle scripts that execute automatically during install or publish, including prepare, prepack, and postpack which bypass postinstall-only defences."
+severity = "Critical"
+language = "NodeJs"
+pattern = { type = "ScriptKey", keys = ["postinstall", "preinstall", "prepare", "install", "prepack", "postpack"] }
