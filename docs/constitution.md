@@ -12,13 +12,13 @@ It exists because malicious actors use fake hiring processes and other social en
 - A pre-clone safety gate — the primary use case is "should I clone this repo?"
 - A rule-driven scanner — all detection logic is expressed as explicit, human-readable rules
 - A composable CLI tool — exits with a meaningful code so it can be used in shell scripts
+- Capable of scanning private repositories when provided a GitHub token with `repo` scope
 
 ## What It Is Not
 
 - A runtime sandbox or firewall
 - A replacement for antivirus or EDR tooling
 - A general-purpose SAST tool (though it may overlap)
-- A tool for scanning private repos (v1 scope: public repos only)
 
 ## Core Principles
 
