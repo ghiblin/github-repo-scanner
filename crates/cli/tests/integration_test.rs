@@ -109,6 +109,23 @@ fn accepts_token_from_env_var() {
 }
 
 #[test]
+fn rejects_empty_token_flag() {
+    let output = bin()
+        .arg("https://github.com/owner/repo")
+        .arg("--token")
+        .arg("")
+        .env_remove("GITHUB_TOKEN")
+        .output()
+        .expect("binary must exist");
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("GitHub token"),
+        "expected token error for empty --token flag, got: {stderr}"
+    );
+}
+
+#[test]
 fn token_flag_takes_precedence_over_env_var() {
     let output = bin()
         .arg("https://github.com/owner/repo")
