@@ -2,7 +2,7 @@ use std::{path::PathBuf, process, sync::Arc};
 
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use scanner_analysis::{Analyzer, NodeJsAnalyzer, VsCodeAnalyzer, Verdict};
+use scanner_analysis::{Analyzer, NodeJsAnalyzer, Verdict, VsCodeAnalyzer};
 use scanner_report::render;
 use scanner_repository::{GithubApiClient, LocalCloneClient, RepositoryPort};
 use scanner_rules::loader::load;
@@ -77,7 +77,7 @@ async fn fetch_snapshot(
         LocalCloneClient::new().fetch_url(url)?
     } else {
         pb.set_message(format!("Fetching {owner}/{name}..."));
-        GithubApiClient::new("https://api.github.com")
+        GithubApiClient::new("https://api.github.com", "")
             .fetch(owner, name)
             .await?
     };

@@ -33,10 +33,28 @@ pub struct GithubApiClient {
 }
 
 impl GithubApiClient {
-    pub fn new(base_url: impl Into<String>) -> Self {
+    /// Creates a new `GithubApiClient`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `token` contains characters that are not valid in an HTTP header value
+    /// (i.e. non-ASCII or ASCII control characters), or if the underlying `reqwest` client
+    /// cannot be built (extremely unlikely in practice).
+    pub fn new(base_url: impl Into<String>, token: impl Into<String>) -> Self {
+        let auth_value = format!("Bearer {}", token.into());
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(
+            reqwest::header::AUTHORIZATION,
+            reqwest::header::HeaderValue::from_str(&auth_value)
+                .expect("token must not contain invalid header characters"),
+        );
+        let client = reqwest::Client::builder()
+            .default_headers(headers)
+            .build()
+            .expect("failed to build reqwest client");
         Self {
             base_url: base_url.into(),
-            client: reqwest::Client::new(),
+            client,
         }
     }
 }
@@ -51,13 +69,28 @@ impl RepositoryPort for GithubApiClient {
         let resp = self.client.get(&tree_url).send().await?;
 
         match resp.status().as_u16() {
+            401 => return Err(RepositoryError::Unauthorized),
+            403 => {
+                let remaining = resp
+                    .headers()
+                    .get("x-ratelimit-remaining")
+                    .and_then(|v| v.to_str().ok())
+                    .and_then(|v| v.parse::<u64>().ok());
+                return Err(if remaining == Some(0) {
+                    RepositoryError::RateLimited
+                } else {
+                    RepositoryError::Forbidden {
+                        owner: owner.to_owned(),
+                        name: name.to_owned(),
+                    }
+                });
+            }
             404 => {
                 return Err(RepositoryError::NotFound {
                     owner: owner.to_owned(),
                     name: name.to_owned(),
                 })
             }
-            403 => return Err(RepositoryError::RateLimited),
             _ => {}
         }
 
