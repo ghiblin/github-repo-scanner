@@ -64,15 +64,20 @@ async fn run(args: Args) -> anyhow::Result<i32> {
 }
 
 fn resolve_token(flag: Option<String>) -> anyhow::Result<String> {
-    if let Some(t) = flag {
-        return Ok(t);
-    }
-    if let Ok(t) = std::env::var("GITHUB_TOKEN") {
-        if !t.is_empty() {
-            return Ok(t);
+    let token = if let Some(t) = flag {
+        t
+    } else if let Ok(t) = std::env::var("GITHUB_TOKEN") {
+        if t.is_empty() {
+            anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
         }
+        t
+    } else {
+        anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
+    };
+    if token.bytes().any(|b| b < 32 || b == 127) {
+        anyhow::bail!("GitHub token contains invalid characters");
     }
-    anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
+    Ok(token)
 }
 
 async fn fetch_snapshot(

@@ -79,3 +79,16 @@ fn leaves_non_github_url_unchanged() {
     let url = "file:///tmp/local-repo";
     assert_eq!(client.authenticated_url(url), url);
 }
+
+#[test]
+fn clone_error_does_not_expose_token() {
+    let client = LocalCloneClient::new("super-secret-token");
+    let err = client
+        .fetch_url("https://github.com/nonexistent-org-xyz/no-such-repo-abc123")
+        .unwrap_err();
+    let msg = err.to_string();
+    assert!(
+        !msg.contains("super-secret-token"),
+        "token must not appear in error message, got: {msg}"
+    );
+}

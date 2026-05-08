@@ -44,8 +44,11 @@ impl LocalCloneClient {
             .output()?;
 
         if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-            return Err(RepositoryError::CloneFailed(stderr));
+            let raw = String::from_utf8_lossy(&output.stderr).to_string();
+            let scrubbed = raw
+                .replace(&format!("x-access-token:{}@", self.token), "")
+                .replace(&self.token, "***");
+            return Err(RepositoryError::CloneFailed(scrubbed));
         }
 
         let mut files = Vec::new();
