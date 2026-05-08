@@ -74,6 +74,9 @@ fn resolve_token(flag: Option<String>) -> anyhow::Result<String> {
     } else {
         anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.")
     };
+    if token.is_empty() {
+        anyhow::bail!("GitHub token is required. Set GITHUB_TOKEN or pass --token <TOKEN>.");
+    }
     if token.bytes().any(|b| b < 32 || b == 127) {
         anyhow::bail!("GitHub token contains invalid characters");
     }
@@ -100,7 +103,7 @@ async fn fetch_snapshot(
         LocalCloneClient::new(token).fetch_url(url)?
     } else {
         pb.set_message(format!("Fetching {owner}/{name}..."));
-        GithubApiClient::new("https://api.github.com", token)
+        GithubApiClient::new("https://api.github.com", token)?
             .fetch(owner, name)
             .await?
     };

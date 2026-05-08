@@ -33,29 +33,28 @@ pub struct GithubApiClient {
 }
 
 impl GithubApiClient {
-    /// Creates a new `GithubApiClient`.
+    /// # Errors
     ///
-    /// # Panics
-    ///
-    /// Panics if `token` contains characters that are not valid in an HTTP header value
-    /// (i.e. non-ASCII or ASCII control characters), or if the underlying `reqwest` client
-    /// cannot be built (extremely unlikely in practice).
-    pub fn new(base_url: impl Into<String>, token: impl Into<String>) -> Self {
+    /// Returns [`RepositoryError::InvalidToken`] if `token` contains characters that are not
+    /// valid in an HTTP header value (non-ASCII or ASCII control characters).
+    pub fn new(
+        base_url: impl Into<String>,
+        token: impl Into<String>,
+    ) -> Result<Self, RepositoryError> {
         let auth_value = format!("Bearer {}", token.into());
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(
             reqwest::header::AUTHORIZATION,
             reqwest::header::HeaderValue::from_str(&auth_value)
-                .expect("token must not contain invalid header characters"),
+                .map_err(|_| RepositoryError::InvalidToken)?,
         );
         let client = reqwest::Client::builder()
             .default_headers(headers)
-            .build()
-            .expect("failed to build reqwest client");
-        Self {
+            .build()?;
+        Ok(Self {
             base_url: base_url.into(),
             client,
-        }
+        })
     }
 }
 

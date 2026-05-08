@@ -8,6 +8,8 @@ pub enum RepositoryError {
     Unauthorized,
     #[error("access denied to {owner}/{name}: token may lack 'repo' scope")]
     Forbidden { owner: String, name: String },
+    #[error("invalid token: contains characters not valid in an HTTP header value")]
+    InvalidToken,
     #[error("network error: {0}")]
     Network(#[from] reqwest::Error),
     #[error("git clone failed: {0}")]

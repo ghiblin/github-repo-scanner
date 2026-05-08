@@ -4,7 +4,26 @@ use scanner_repository::{GithubApiClient, RepositoryError, RepositoryPort};
 // ── helpers ────────────────────────────────────────────────────────────────
 
 fn client(server: &mockito::Server) -> GithubApiClient {
-    GithubApiClient::new(server.url(), "test-token")
+    GithubApiClient::new(server.url(), "test-token").expect("valid test token")
+}
+
+// ── constructor tests ───────────────────────────────────────────────────────
+
+#[test]
+fn new_rejects_token_with_control_character() {
+    let result = GithubApiClient::new("https://api.github.com", "ghp_bad\x01token");
+    assert!(
+        matches!(result, Err(RepositoryError::InvalidToken)),
+        "token with control characters must be rejected"
+    );
+}
+
+#[test]
+fn new_accepts_valid_ascii_token() {
+    assert!(
+        GithubApiClient::new("https://api.github.com", "ghp_valid_token_123").is_ok(),
+        "valid ASCII token must be accepted"
+    );
 }
 
 // ── existing tests (updated constructor call) ──────────────────────────────
