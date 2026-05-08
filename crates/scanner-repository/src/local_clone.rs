@@ -18,7 +18,7 @@ impl LocalCloneClient {
 
     #[must_use]
     pub fn authenticated_url(&self, url: &str) -> String {
-        if url.contains("github.com") {
+        if url.starts_with("https://github.com/") {
             url.replacen(
                 "https://",
                 &format!("https://x-access-token:{}@", self.token),

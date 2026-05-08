@@ -81,6 +81,21 @@ fn leaves_non_github_url_unchanged() {
 }
 
 #[test]
+fn does_not_embed_token_when_github_com_appears_in_path_only() {
+    let client = LocalCloneClient::new("my-secret-token");
+    let crafted_url = "https://evil.com/github.com-exploit";
+    let result = client.authenticated_url(crafted_url);
+    assert_eq!(
+        result, crafted_url,
+        "URL must be unchanged when github.com only appears in path, not hostname"
+    );
+    assert!(
+        !result.contains("my-secret-token"),
+        "token must not be embedded in non-github.com-hosted URL, got: {result}"
+    );
+}
+
+#[test]
 fn clone_error_does_not_expose_token() {
     let client = LocalCloneClient::new("super-secret-token");
     let err = client
