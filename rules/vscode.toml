@@ -20,7 +20,7 @@ name = "Terminal env injection"
 description = "Injects PATH, LD_PRELOAD, or DYLD_INSERT_LIBRARIES via terminal.integrated.env, hijacking every subprocess spawned from the VS Code integrated terminal."
 severity = "High"
 language = "VsCode"
-pattern = { type = "Regex", value = 'terminal\.integrated\.env.*(?:PATH|LD_PRELOAD|DYLD_INSERT)' }
+pattern = { type = "TerminalEnvInjectionCheck" }
 
 [[rules]]
 id = "VSCODE-004"

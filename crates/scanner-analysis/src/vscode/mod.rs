@@ -15,7 +15,12 @@ impl Analyzer for VsCodeAnalyzer {
                 let new = match &rule.pattern {
                     Pattern::Regex { value } => checks::check(file, rule, value),
                     Pattern::ExtensionIdCheck => checks::extension_id_check(file, rule),
-                    _ => vec![],
+                    Pattern::TerminalEnvInjectionCheck => {
+                        checks::terminal_env_injection_check(file, rule)
+                    }
+                    Pattern::ScriptKey { .. }
+                    | Pattern::FileMatch { .. }
+                    | Pattern::TypoSquat { .. } => vec![],
                 };
                 findings.extend(new);
             }

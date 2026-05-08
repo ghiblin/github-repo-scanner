@@ -29,6 +29,45 @@ pub fn check(file: &RepoFile, rule: &Rule, pattern: &str) -> Vec<Finding> {
         .collect()
 }
 
+const DANGEROUS_VARS: &[&str] = &["PATH", "LD_PRELOAD", "DYLD_INSERT_LIBRARIES", "DYLD_INSERT"];
+
+#[must_use]
+pub fn terminal_env_injection_check(file: &RepoFile, rule: &Rule) -> Vec<Finding> {
+    if !file.path.starts_with(".vscode") {
+        return vec![];
+    }
+    let FileContent::Text(ref content) = file.content else {
+        return vec![];
+    };
+    let Ok(json) = serde_json::from_str::<serde_json::Value>(content) else {
+        return vec![];
+    };
+    let Some(obj) = json.as_object() else {
+        return vec![];
+    };
+    let mut findings = Vec::new();
+    for (key, value) in obj {
+        if !key.starts_with("terminal.integrated.env") {
+            continue;
+        }
+        if let Some(env_obj) = value.as_object() {
+            for var_name in env_obj.keys() {
+                if DANGEROUS_VARS.contains(&var_name.as_str()) {
+                    findings.push(Finding {
+                        rule_id: rule.id.clone(),
+                        severity: rule.severity.clone(),
+                        file: file.path.clone(),
+                        line: None,
+                        message: rule.name.clone(),
+                        snippet: Some(format!("{key}.{var_name}")),
+                    });
+                }
+            }
+        }
+    }
+    findings
+}
+
 #[must_use]
 pub fn extension_id_check(file: &RepoFile, rule: &Rule) -> Vec<Finding> {
     if !file.path.starts_with(".vscode") {

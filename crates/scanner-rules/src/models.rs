@@ -47,6 +47,7 @@ pub enum Pattern {
     FileMatch { glob: String },
     TypoSquat { known_packages: Vec<String> },
     ExtensionIdCheck,
+    TerminalEnvInjectionCheck,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]

@@ -23,9 +23,7 @@ fn ruleset() -> Arc<RuleSet> {
             description: String::new(),
             severity: Severity::High,
             language: Language::VsCode,
-            pattern: Pattern::Regex {
-                value: r"terminal\.integrated\.env.*(?:PATH|LD_PRELOAD|DYLD_INSERT)".to_owned(),
-            },
+            pattern: Pattern::TerminalEnvInjectionCheck,
         }],
     })
 }
@@ -49,4 +47,18 @@ fn ignores_safe_terminal_env() {
     let content = r#"{ "terminal.integrated.env.linux": { "CUSTOM_VAR": "value" } }"#;
     let findings = VsCodeAnalyzer.analyze(&snapshot(".vscode/settings.json", content), &ruleset());
     assert!(findings.is_empty());
+}
+
+#[test]
+fn detects_ld_preload_in_pretty_printed_json() {
+    let content = "{\n    \"terminal.integrated.env.linux\": {\n        \"LD_PRELOAD\": \"./hack.so\"\n    }\n}";
+    let findings = VsCodeAnalyzer.analyze(&snapshot(".vscode/settings.json", content), &ruleset());
+    assert_eq!(findings.len(), 1);
+}
+
+#[test]
+fn detects_dyld_insert_in_pretty_printed_json() {
+    let content = "{\n    \"terminal.integrated.env.osx\": {\n        \"DYLD_INSERT_LIBRARIES\": \"./evil.dylib\"\n    }\n}";
+    let findings = VsCodeAnalyzer.analyze(&snapshot(".vscode/settings.json", content), &ruleset());
+    assert_eq!(findings.len(), 1);
 }
