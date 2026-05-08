@@ -45,7 +45,7 @@ fn create_fake_repo() -> TempDir {
 fn clones_local_repo_and_reads_files() {
     let fake_repo = create_fake_repo();
     let url = format!("file://{}", fake_repo.path().display());
-    let client = LocalCloneClient::new();
+    let client = LocalCloneClient::new("test-token");
     let snapshot = client.fetch_url(&url).expect("clone should succeed");
     assert_eq!(snapshot.files.len(), 1);
     assert_eq!(snapshot.files[0].path.to_str().unwrap(), "package.json");
@@ -53,7 +53,7 @@ fn clones_local_repo_and_reads_files() {
 
 #[test]
 fn returns_clone_failed_for_invalid_url() {
-    let client = LocalCloneClient::new();
+    let client = LocalCloneClient::new("test-token");
     let err = client
         .fetch_url("https://github.com/nonexistent-org-xyz/no-such-repo-abc123")
         .unwrap_err();
@@ -61,4 +61,21 @@ fn returns_clone_failed_for_invalid_url() {
         err,
         scanner_repository::RepositoryError::CloneFailed(_)
     ));
+}
+
+#[test]
+fn embeds_token_in_github_clone_url() {
+    let client = LocalCloneClient::new("my-secret-token");
+    let auth_url = client.authenticated_url("https://github.com/owner/repo");
+    assert_eq!(
+        auth_url,
+        "https://x-access-token:my-secret-token@github.com/owner/repo"
+    );
+}
+
+#[test]
+fn leaves_non_github_url_unchanged() {
+    let client = LocalCloneClient::new("my-secret-token");
+    let url = "file:///tmp/local-repo";
+    assert_eq!(client.authenticated_url(url), url);
 }

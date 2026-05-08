@@ -74,7 +74,8 @@ async fn fetch_snapshot(
 
     let snapshot = if clone {
         pb.set_message(format!("Cloning {owner}/{name}..."));
-        LocalCloneClient::new().fetch_url(url)?
+        let token = std::env::var("GITHUB_TOKEN").unwrap_or_default();
+        LocalCloneClient::new(token).fetch_url(url)?
     } else {
         pb.set_message(format!("Fetching {owner}/{name}..."));
         GithubApiClient::new("https://api.github.com", "")

@@ -4,23 +4,41 @@ use crate::{
     port::RepositoryPort,
 };
 
-pub struct LocalCloneClient;
+pub struct LocalCloneClient {
+    token: String,
+}
 
 impl LocalCloneClient {
     #[must_use]
-    pub fn new() -> Self {
-        Self
+    pub fn new(token: impl Into<String>) -> Self {
+        Self {
+            token: token.into(),
+        }
+    }
+
+    #[must_use]
+    pub fn authenticated_url(&self, url: &str) -> String {
+        if url.contains("github.com") {
+            url.replacen(
+                "https://",
+                &format!("https://x-access-token:{}@", self.token),
+                1,
+            )
+        } else {
+            url.to_owned()
+        }
     }
 
     /// # Errors
     /// Returns an error if the git clone fails, directory walking fails, or I/O errors occur.
     pub fn fetch_url(&self, url: &str) -> Result<RepoSnapshot, RepositoryError> {
+        let auth_url = self.authenticated_url(url);
         let tmp = tempfile::TempDir::new()?;
         let output = std::process::Command::new("git")
             .args([
                 "clone",
                 "--depth=1",
-                url,
+                &auth_url,
                 tmp.path().to_str().unwrap_or("."),
             ])
             .output()?;
@@ -38,12 +56,6 @@ impl LocalCloneClient {
             name: url.split('/').next_back().unwrap_or("repo").to_owned(),
             files,
         })
-    }
-}
-
-impl Default for LocalCloneClient {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
