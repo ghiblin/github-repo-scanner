@@ -1,14 +1,14 @@
 use scanner_analysis::{nodejs::NodeJsAnalyzer, Analyzer};
 use scanner_repository::{FileContent, RepoFile, RepoSnapshot};
 use scanner_rules::{Language, Pattern, Rule, RuleId, RuleSet, Severity};
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 fn snapshot(content: &str) -> RepoSnapshot {
     RepoSnapshot {
         owner: "t".to_owned(),
         name: "r".to_owned(),
         files: vec![RepoFile {
-            path: std::path::PathBuf::from("package.json"),
+            path: PathBuf::from("package.json"),
             content: FileContent::Text(content.to_owned()),
             size_bytes: content.len() as u64,
         }],

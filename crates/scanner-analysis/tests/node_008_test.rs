@@ -24,7 +24,8 @@ fn ruleset() -> Arc<RuleSet> {
             severity: Severity::High,
             language: Language::NodeJs,
             pattern: Pattern::Regex {
-                value: r#"new\s+Function\s*\(|setTimeout\s*\(\s*['"]|setInterval\s*\(\s*['"]"#.to_owned(),
+                value: r#"new\s+Function\s*\(|setTimeout\s*\(\s*['"]|setInterval\s*\(\s*['"]"#
+                    .to_owned(),
             },
         }],
     })
@@ -40,6 +41,13 @@ fn detects_new_function_constructor() {
 #[test]
 fn detects_settimeout_with_string() {
     let src = r#"setTimeout("malicious()", 0);"#;
+    let findings = NodeJsAnalyzer.analyze(&snapshot("index.js", src), &ruleset());
+    assert_eq!(findings.len(), 1);
+}
+
+#[test]
+fn detects_setinterval_with_string() {
+    let src = r#"setInterval("exfiltrate()", 5000);"#;
     let findings = NodeJsAnalyzer.analyze(&snapshot("index.js", src), &ruleset());
     assert_eq!(findings.len(), 1);
 }

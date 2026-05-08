@@ -32,28 +32,28 @@ fn ruleset() -> Arc<RuleSet> {
 
 #[test]
 fn detects_ssh_key_read() {
-    let src = r#"const key = fs.readFileSync('/home/user/.ssh/id_rsa', 'utf8');"#;
+    let src = r"const key = fs.readFileSync('/home/user/.ssh/id_rsa', 'utf8');";
     let findings = NodeJsAnalyzer.analyze(&snapshot("index.js", src), &ruleset());
     assert_eq!(findings.len(), 1);
 }
 
 #[test]
 fn detects_aws_credentials_read() {
-    let src = r#"readFile('/root/.aws/credentials', callback);"#;
+    let src = r"readFile('/root/.aws/credentials', callback);";
     let findings = NodeJsAnalyzer.analyze(&snapshot("index.js", src), &ruleset());
     assert_eq!(findings.len(), 1);
 }
 
 #[test]
 fn ignores_safe_file_read() {
-    let src = r#"const data = fs.readFileSync('./config.json', 'utf8');"#;
+    let src = r"const data = fs.readFileSync('./config.json', 'utf8');";
     let findings = NodeJsAnalyzer.analyze(&snapshot("index.js", src), &ruleset());
     assert!(findings.is_empty());
 }
 
 #[test]
 fn ignores_non_js_files() {
-    let src = r#"readFileSync('/root/.ssh/id_rsa')"#;
+    let src = r"readFileSync('/root/.ssh/id_rsa')";
     let findings = NodeJsAnalyzer.analyze(&snapshot("README.md", src), &ruleset());
     assert!(findings.is_empty());
 }
