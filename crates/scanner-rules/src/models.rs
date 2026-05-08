@@ -23,7 +23,7 @@ impl Language {
     pub fn prefix(&self) -> &'static str {
         match self {
             Language::NodeJs => "NODE",
-            Language::Any    => "ANY",
+            Language::Any => "ANY",
             Language::VsCode => "VSCODE",
         }
     }
@@ -31,10 +31,10 @@ impl Language {
     #[must_use]
     pub fn from_prefix(s: &str) -> Option<Self> {
         match s {
-            "NODE"   => Some(Language::NodeJs),
-            "ANY"    => Some(Language::Any),
+            "NODE" => Some(Language::NodeJs),
+            "ANY" => Some(Language::Any),
             "VSCODE" => Some(Language::VsCode),
-            _        => None,
+            _ => None,
         }
     }
 }
