@@ -21,6 +21,7 @@ impl Analyzer for NodeJsAnalyzer {
                     Pattern::FileMatch { glob } => {
                         checks::shell::check_file_match(file, rule, glob)
                     }
+                    Pattern::ExtensionIdCheck => vec![],
                 };
                 findings.extend(new);
             }
